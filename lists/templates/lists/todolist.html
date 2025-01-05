@@ -19,11 +19,13 @@ background: radial-gradient(circle at bottom left ,#fdfafa 35%, transparent 36%)
     <form action="{% url 'lists:add_todo' todolist.id %}" method="post">
       {% csrf_token %}
       <div class="input-group">
-        {{ form.description }}
-        {{ form.limit_date }}
-        <input type="submit" value="Submit" class="submit-btn">
+          {{ form.description }}
+          {{ form.limit_date }}
+          {{ form.priority }}
+          <input type="submit" value="Submit" class="submit-btn">
       </div>
-    </form>
+  </form>
+  
   </div>
 <style>
   /* Container for the input group */
@@ -36,6 +38,36 @@ background: radial-gradient(circle at bottom left ,#fdfafa 35%, transparent 36%)
 /* Make the description input larger */
 input[name="description"] {
   width: 100%; /* Take up most of the space */
+}
+
+/* Style the priority dropdown */
+select[name="priority"] {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  transition: border 0.3s ease, background-color 0.3s ease;
+  width: auto;
+  color: #333; /* Text color */
+}
+
+/* Add focus effect */
+select[name="priority"]:focus {
+  border-color: #007bff;
+  background-color: #e7f3ff; /* Light blue background */
+  outline: none;
+}
+
+/* Style the options */
+select[name="priority"] option {
+  background-color: #fff; /* Default option background */
+  color: #333; /* Default text color */
+}
+
+/* Highlight selected option */
+select[name="priority"] option:checked {
+  background-color: #007bff; /* Blue background for selected */
+  color: #fff; /* White text for selected */
 }
 
 /* Style the calendar picker input */
@@ -69,44 +101,89 @@ input[type="date"]:focus {
         <button id="btn-total">Total</button>
         <button id="btn-unfinished">Unfinished</button>
         <button id="btn-finished">Finished</button>
+        <select id="priority-filter" style="margin-left: 80px;">
+          <option value="all" >All</option>
+          <option value="low" style="color: grey;">Low</option>
+          <option value="medium" style="color: rgb(159, 159, 0);">Medium</option>
+          <option value="high" style="color: rgb(1, 101, 1);">High</option>
+          <option value="urgent" style="color: rgb(121, 1, 1);">Urgent</option>
+        </select>
       </div>
       <div id="task-container" style="height: 360px; overflow: scroll;">
         {% for todo in todos %}
-          <div 
-            class="task-box" 
-            data-limit-date="{{ todo.limit_date|date:'Y-m-d' }}" 
-            data-finished="{% if todo.is_finished %}true{% else %}false{% endif %}" 
-            data-expired="{% if todo.limit_date < today %}true{% else %}false{% endif %}" 
-            data-id="{{ todo.id }}"
-          >
-            <input 
-              type="checkbox" 
-              class="task-checkbox" 
-              data-todo-id="{{ todo.id }}" 
-              {% if todo.is_finished %}checked="checked"{% endif %}
-            >
-            <span class="task-text {% if todo.is_finished %}finished{% endif %}" contenteditable="false">
-              {{ todo.description }}
-            </span>
-      
-            <div class="task-actions">
-              <span class="expired-text" style="display: {% if todo.limit_date < today %} inline {% else %} none {% endif %};">Expired</span>
-      
-              <!-- Edit Button (Pen Icon) -->
-              <button class="edit-icon pen-icon task-action-icon" style="border: 0px;padding: 0px;margin-right:8px;">
-                <i class="fas fa-pen"></i> <!-- Pen Icon -->
-              </button>
-      
-              <!-- Delete Button (Trashcan Icon) -->
-              <button class="delete-icon trashcan-icon task-action-icon" style="border: 0px;padding: 0px;margin-right:3px;" data-todo-id="{{ todo.id }}">
-                <i class="fas fa-trash"></i> <!-- Trashcan Icon -->
-              </button>
-      
-              <!-- Limit Date -->
-              <span class="task-limit-date">{{ todo.limit_date|date:"Y-m-d" }}</span>
-            </div>
-          </div>
-        {% endfor %}
+  <div 
+    class="task-box" 
+    data-limit-date="{{ todo.limit_date|date:'Y-m-d' }}" 
+    data-finished="{% if todo.is_finished %}true{% else %}false{% endif %}" 
+    data-expired="{% if todo.limit_date < today %}true{% else %}false{% endif %}" 
+    data-id="{{ todo.id }}"
+  >
+    <input 
+      type="checkbox" 
+      class="task-checkbox" 
+      data-todo-id="{{ todo.id }}" 
+      {% if todo.is_finished %}checked="checked"{% endif %}
+    >
+    <span class="task-text {% if todo.is_finished %}finished{% endif %}" contenteditable="false">
+      {{ todo.description }}
+    </span>
+
+    <div class="task-actions">
+      <span class="expired-text" style="display: {% if todo.limit_date < today %} inline {% else %} none {% endif %};">Expired</span>
+
+      <!-- Edit Button (Pen Icon) -->
+      <button class="edit-icon pen-icon task-action-icon" style="border: 0px;padding: 0px;margin-right:8px;">
+        <i class="fas fa-pen"></i> <!-- Pen Icon -->
+      </button>
+
+      <!-- Delete Button (Trashcan Icon) -->
+      <button class="delete-icon trashcan-icon task-action-icon" style="border: 0px;padding: 0px;margin-right:3px;" data-todo-id="{{ todo.id }}">
+        <i class="fas fa-trash"></i> <!-- Trashcan Icon -->
+      </button>
+
+      <!-- Limit Date -->
+      <span class="task-limit-date">{{ todo.limit_date|date:"Y-m-d" }}</span>
+
+      <!-- Priority -->
+      <span class="task-priority priority-{{ todo.priority|lower }}">
+        &#10050; {{ todo.priority|title }} 
+      </span>
+    </div>
+  </div>
+{% endfor %}
+<style>/* Base styles for priority */
+  .task-priority {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    display: inline-block;
+    margin-left: 10px;
+    background-color: white;
+  }
+  
+  /* Priority-specific styles */
+  .priority-low {
+    color: gray;
+    border-color: gray;
+  }
+  
+  .priority-medium {
+    color: goldenrod;
+    border-color: goldenrod;
+  }
+  
+  .priority-high {
+    color: green;
+    border-color: green;
+  }
+  
+  .priority-urgent {
+    color: red;
+    border-color: red;
+  }
+  
+</style>
       </div>
       
       <style>
@@ -383,9 +460,10 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 </section>
 
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const todoItems = document.querySelectorAll(".task-box"); // Updated to .task-box
+    const todoItems = document.querySelectorAll(".task-box");
 
     // Filter functions
     const showTotal = () => {
@@ -411,10 +489,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const showExpired = () => {
       todoItems.forEach(item => {
         const isExpired = item.dataset.expired === "true";
-        console.log("Item expired:", item.dataset.expired); // Debugging
         item.style.display = isExpired ? "flex" : "none"; // Show only expired
       });
     };
+
+    const filterByPriority = (priority) => {
+      todoItems.forEach(item => {
+        const itemPriority = item.querySelector(".task-priority").classList[1].split("-")[1];
+        if (priority === "all" || itemPriority === priority) {
+          item.style.display = "flex"; // Show matching items
+        } else {
+          item.style.display = "none"; // Hide non-matching items
+        }
+      });
+    };
+
     // Function to update the background color of checked tasks
     const updateTaskStyles = () => {
       const checkboxes = document.querySelectorAll(".task-checkbox");
@@ -438,11 +527,15 @@ document.addEventListener("DOMContentLoaded", () => {
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener("change", updateTaskStyles);
     });
+
     // Attach event listeners
     document.getElementById("btn-total").addEventListener("click", showTotal);
     document.getElementById("btn-unfinished").addEventListener("click", showUnfinished);
     document.getElementById("btn-finished").addEventListener("click", showFinished);
-    document.getElementById("btn-expired").addEventListener("click", showExpired);
+    document.getElementById("priority-filter").addEventListener("change", (event) => {
+      const selectedPriority = event.target.value;
+      filterByPriority(selectedPriority);
+    });
   });
 </script>
 

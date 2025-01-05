@@ -47,6 +47,7 @@ def add_todo(request, todolist_id):
             todo = Todo(
                 description=form.cleaned_data["description"],
                 limit_date=form.cleaned_data.get("limit_date"),
+                priority=form.cleaned_data.get("priority"),  # Get priority from form
                 todolist_id=todolist_id,
                 creator=user,
             )
@@ -60,6 +61,7 @@ def add_todo(request, todolist_id):
                 {"form": form, "todolist": todolist},
             )
     return redirect("lists:index")
+
 
 
 

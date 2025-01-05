@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
 from django.utils.timezone import now
+
 
 class TodoList(models.Model):
     title = models.CharField(max_length=128, default="untitled")
@@ -27,11 +27,23 @@ class TodoList(models.Model):
 
 
 class Todo(models.Model):
+    PRIORITY_CHOICES = [
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
+        ("urgent", "Urgent"),
+    ]
+
     description = models.CharField(max_length=128)
-    limit_date = models.DateField(null=True, blank=True)  # Added field
+    limit_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
     finished_at = models.DateTimeField(null=True, blank=True)
     is_finished = models.BooleanField(default=False)
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default="low",  # Default priority
+    )
     creator = models.ForeignKey(
         User, null=True, related_name="todos", on_delete=models.CASCADE
     )
@@ -43,7 +55,7 @@ class Todo(models.Model):
         ordering = ("created_at",)
 
     def __str__(self):
-        return self.description
+        return f"{self.description} ({self.get_priority_display()})"
 
     def close(self):
         self.is_finished = True
