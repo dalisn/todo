@@ -5,24 +5,34 @@ from django.shortcuts import redirect, render
 from accounts.forms import LoginForm, RegistrationForm
 from lists.forms import TodoForm
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from .forms import LoginForm
 
 def login_view(request):
+    print("Login view accessed.")
     if request.method == "POST":
+        print("POST request received.")
         form = LoginForm(request.POST)
         if form.is_valid():
+            print("Form is valid.")
             user = authenticate(
                 username=request.POST["username"], password=request.POST["password"]
             )
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect("lists:overview")
+                    print(f"User {user.username} logged in successfully.")
+                    return redirect("lists:overview")  # Redirect to lists overview
+                else:
+                    print("User account is not active.")
+            else:
+                print("Authentication failed.")
         else:
-            return render(request, "accounts/login.html", {"form": form})
+            print("Form is not valid.")
+        return render(request, "accounts/login.html", {"form": form})
     else:
         return render(request, "accounts/login.html", {"form": LoginForm()})
-
-    return redirect("lists:overview")
 
 
 def register(request):
