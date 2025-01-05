@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block body %}
+<section class="header" style="border: 2px black;background-color: white;padding: 60px;border-radius: 8px;box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.7);">
+  <h2 class="title">Login</h2>
+  <div class="row">
+    <div class="three columns value-prop"></div>
+    <div class="six columns">
+      <form method=post>
+        {% csrf_token %}
+        <dl>
+          <dd>{{ form }}
+          <dt><input type="submit" class="button button-primary" value="Login">
+        </dl>
+      </form>
+      <p>New user? <a href="{% url 'auth:register' %}">Click here to register</a>.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

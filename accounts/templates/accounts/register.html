@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block body %}
+<section class="header" style="border: 2px black;padding: 10px;border-radius: 8px;box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.7);
+background: radial-gradient(circle at bottom left ,#fdfafa 35%, transparent 36%), radial-gradient(circle at top right ,#fdfafa 35%, transparent 36%), radial-gradient(circle at center ,#fdfafa 15%, transparent 16%);
+        background-size: 1em 1em;
+        background-color: #ffffff;
+        opacity: 1
+">
+  <h2 class="title">Register</h2>
+  <div class="row">
+    <div class="three columns value-prop"></div>
+    <div class="six columns">
+      <form method=post>
+        {% csrf_token %}
+        <dl>
+          <dd>{{ form }}
+          <dt><input type="submit" class="button button-primary" value="Register">
+        </dl>
+      </form>
+      <p>Already registerd? <a href="{% url 'auth:login' %}">Click here to login</a>.</p>
+    </div>
+  </div>
+</section>
+<style>
+ 
+</style>
+{% endblock %}
